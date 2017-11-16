@@ -118,24 +118,38 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 
 
 
-static int xmp_read(const char *path, char *buf, size_t size, off_t offset)
+static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
+		    struct fuse_file_info *fi)
 {
-    int fd;
-    int res;
-    char fpath[1000];
-    sprintf(fpath,"%s%s", dirpath, path);
-    fd = open(fpath, O_RDONLY);
-    if(fd == -1)
-        return -errno;
+  char fpath[1000];
+	if(strcmp(path,"/") == 0)
+	{
+		path=dirpath;
+		sprintf(fpath,"%s",path);
+	}
+	else sprintf(fpath, "%s%s",dirpath,path);
+	int res = 0;
+ 	int fd = 0 ;
 
-    res = pread(fd, buf, size, offset);
-    if(res == -1)
-        res = -errno;
+	(void) fi;
 
-    close(fd);
-    return res;
+	if(strstr(fpath,".copy")!=NULL){
+	  system("zenity --error --text='File yang anda buka adalah file hasil salinan. File tidak bisa diubah maupun disalin kembali!'");
+	  int chm = chmod(fpath,000);
+	  if(chm == -1) return -errno;
+	  return -1;
+	}
+else {
+	fd = open(fpath, O_RDONLY);
+	if (fd == -1) return -errno;
+
+	res = pread(fd, buf, size, offset);
+	if (res == -1) res = -errno;
+
+	close(fd);
 }
-
+	return res;
+}
 static int xmp_write(const char *path, const char *buf, size_t size,
                      off_t offset)
 {
