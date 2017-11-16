@@ -94,7 +94,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
                   return -errno;
    else
    {
-      if(strcmp(ext, ".c") == 0 || strcmp(ext, ".3gp") == 0 || strcmp(ext, ".docx") == 0|| strcmp(ext, ".ditandai") == 0)
+      if(strcmp(ext, ".pdf") == 0 || strcmp(ext, ".txt") == 0 || strcmp(ext, ".doc") == 0)
       {
          system("zenity --width 400 --error --title 'Error' --text 'Terjadi Kesalahan! File berisi konten berbahaya.'");
 
