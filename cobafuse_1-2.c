@@ -37,6 +37,21 @@ static int xmp_getattr(const char *path, struct stat *stbuf)
 	return 0;
 }
 
+static int xmp_chmod(const char *path, mode_t mode)
+{
+    int res;
+    char fpath[1000];
+    char direktori[] = "/home/steve/Downloads/file";
+    //sprintf(fpath,"%s%s", dirpath, path);
+    sprintf(fpath,"%s%s", direktori, path);
+    res = chmod(fpath, mode);
+    if(res == -1)
+        return -errno;
+
+    return 0;
+}
+
+
 static int xmp_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		       off_t offset, struct fuse_file_info *fi)
 {
@@ -114,12 +129,14 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
          //Mengecek ada tidaknya folder rahasia
          struct stat s;
          if (stat(newFolder, &s) != 0)  //0 berarti folder tersebut tidak ada
-                        mkdir(newFolder, 0777); //membuat folder 'rahasia' folder ke direktori mountnya
+                mkdir(newFolder, 0777); //membuat folder 'rahasia' folder ke direktori mountnya
         
          sprintf(from, "%s", fpath);  //mengambil path file awal
          sprintf(to, "%s/%s.ditandai", newFolder, filename); //membuat path tujuan pemindahan file ke folder ‘rahasia’ dan menambahkan ekstensi ‘.ditandai’
         
          sprintf(cmd, "mv %s %s", from, to); //Merename dan memindah file
+         system(cmd);
+         sprintf(cmd, "chmod 000 %s", to);
          system(cmd);
          return -errno;                                   
         }
@@ -135,6 +152,7 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 
 static struct fuse_operations xmp_oper = {
 	.getattr	= xmp_getattr,
+    .chmod      = xmp_chmod,
 	.readdir	= xmp_readdir,
 	.read		= xmp_read,
 };
