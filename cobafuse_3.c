@@ -91,45 +91,6 @@ static int xmp_mkdir(const char *path,mode_t mode)
     return 0;
 }
 
-static int xmp_symlink(const char *from, const char *to)
-{
-    int res;
- char ffrom[1000];
- char fto[1000];
- sprintf(ffrom,"%s%s",dirpath,from);
- sprintf(fto,"%s%s",dirpath,to);
-    res = symlink(ffrom, fto);
-    if(res == -1)
-        return -errno;
-
-    return 0;
-}
-
-/*static int xmp_link(const char *from, const char *to)
-{
-    int res;
-    char ffrom[1000];
-    char fto[1000];
-    sprintf(ffrom,"%s%s",dirpath,from);
-    sprintf(fto,"%s%s",dirpath,to);
-    res = link(ffrom, fto);
-    if(res == -1)
-        return -errno;
-
-    return 0;
-}*/
-
-static int xmp_unlink(const char *path)
-{
-    int res;
- char fpath[1000];
- sprintf(fpath,"%s%s", dirpath, path);
-    res = unlink(fpath);
-    if(res == -1)
-        return -errno;
-
-    return 0;
-}
 
 static int xmp_truncate(const char *path, off_t size)
 {
@@ -143,18 +104,6 @@ static int xmp_truncate(const char *path, off_t size)
     return 0;
 }
 
-/*static int xmp_utime(const char *path, struct utimbuf *buf)
-{
-    int res;
-     char fpath[1000];
- sprintf(fpath,"%s%s", dirpath, path);
-    res = utime(fpath, buf);
-    if(res == -1)
-        return -errno;
-
-    return 0;
-}*/
-
 static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
 {
     int res;
@@ -167,40 +116,7 @@ static int xmp_mknod(const char *path, mode_t mode, dev_t rdev)
     return 0;
 }
 
-static int xmp_open(const char *path, int flags)
-{
-    int res;
-    int counter=0;
-    char fpath[1000];
-    char path2[1000];
-    char path3[1000];
-    sprintf(fpath,"%s%s", dirpath, path);
-    sprintf(path2,"%s%s","/home/steve/Downloads",path);
-    int i;
-    for(i=0;i<strlen(path);i++)
-    {
-        if(path[i]=='/')
-        {
-            counter++;
-        }
-    }
 
-    if(counter==2)
-    {
-        sprintf(path3,"%s%s","chmod 444 ",path2);
-        system(path3);
-        char temp[]="zenity --info --text=\"";
-             strcat(temp,"File Tidak Bisa Dibuka");
-             strcat(temp,"\"");
-             system(temp);
-    res = open(fpath, flags);
-    if(res == -1)
-        return -errno;
-    }
-
-    close(res);
-    return 0;
-}
 
 static int xmp_read(const char *path, char *buf, size_t size, off_t offset)
 {
@@ -264,25 +180,15 @@ static int xmp_rename(const char *from, const char *to)
 static struct fuse_operations xmp_oper =
 {
  .getattr = xmp_getattr,
- //.readlink = xmp_readlink,
  .getdir = xmp_getdir,
  .mknod = xmp_mknod,
  .mkdir = xmp_mkdir,
- .symlink = xmp_symlink,
- .unlink = xmp_unlink,
- //.rmdir = xmp_rmdir,
  .rename = xmp_rename,
- //.link = xmp_link,
  .chmod = xmp_chmod,
  .chown = xmp_chown,
  .truncate = xmp_truncate,
- //.utime = xmp_utime,
- .open = xmp_open,
  .read = xmp_read,
  .write = xmp_write,
- //.release = xmp_release,
- //.fsync = xmp_fsync,
- //.readdir = hello_readdir
 };
 
 int main(int argc, char *argv[])
