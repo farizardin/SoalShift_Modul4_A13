@@ -143,6 +143,9 @@ static int xmp_write(const char *path, const char *buf, size_t size,
     int res;
  char fpath[1000];
  sprintf(fpath,"%s%s", dirpath, path);
+ char cmd[300];
+ //sprintf(cmd,"zenity --error --text=\"%s\"",fpath);
+ //system(cmd);
     fd = open(fpath, O_WRONLY);
     if(fd == -1)
         return -errno;
@@ -152,6 +155,10 @@ static int xmp_write(const char *path, const char *buf, size_t size,
         res = -errno;
 
     close(fd);
+    sprintf(cmd,"%s.copy", fpath);
+    fd = rename(fpath, cmd);
+    if(fd == -1) return -errno;
+
     return res;
 }
 
