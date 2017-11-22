@@ -18,6 +18,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+
 #ifdef HAVE_SETXATTR
 #include <sys/xattr.h>
 #endif
@@ -111,42 +114,54 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
    {
       if(strcmp(ext, ".pdf") == 0 || strcmp(ext, ".txt") == 0 || strcmp(ext, ".doc") == 0)
       {
-         system("zenity --width 400 --error --title 'Error' --text 'Terjadi Kesalahan! File berisi konten berbahaya.'");
+         pid_t child_id;
+         child_id=fork();
+         int status;
+         if(child_id==0){
+         //system("zenity --width 400 --error --title 'Error' --text 'Terjadi Kesalahan! File berisi konten berbahaya.'");
+         char *argv[]= {"zenity","--error","--text","\"ha haha\"",NULL};
+         execv("/usr/bin/zenity", argv);       
 
-         char from[1000], to[1000], newFolder[1000], filename[1000];
-        
-         //mengambil direktori dari file
-         strcpy(newFolder, fpath);
-        
-         //menghapus filename dan menambahkan 'rahasia'
-         for(i = strlen(newFolder) - 1; newFolder[i] != '/'; newFolder[i--] = 0);
-         strcat(newFolder, "rahasia");
-        
-         //mengambil filename
-         for(i = strlen(fpath) - 1; fpath[i] != '/'; i--);
-         strcpy(filename, fpath+(i+1) ); //+1 untuk menghilangkan tanda ‘/’
-        
-         //Mengecek ada tidaknya folder rahasia
-         struct stat s;
-         if (stat(newFolder, &s) != 0)  //0 berarti folder tersebut tidak ada
-                mkdir(newFolder, 0777); //membuat folder 'rahasia' folder ke direktori mountnya
-        
-         sprintf(from, "%s", fpath);  //mengambil path file awal
-         sprintf(to, "%s/%s.ditandai", newFolder, filename); //membuat path tujuan pemindahan file ke folder ‘rahasia’ dan menambahkan ekstensi ‘.ditandai’
-        
-         sprintf(cmd, "mv %s %s", from, to); //Merename dan memindah file
-         system(cmd);
-         sprintf(cmd, "chmod 000 %s", to);
-         system(cmd);
-         return -errno;                                   
+    
         }
+        else{
+            while ((wait(&status)) > 0);
 
-      res = pread(fd, buf, size, offset);
-      if (res == -1)
-                     res = -errno;
+             char from[1000], to[1000], newFolder[1000], filename[1000];
+            
+             //mengambil direktori dari file
+             strcpy(newFolder, fpath);
+            
+             //menghapus filename dan menambahkan 'rahasia'
+             for(i = strlen(newFolder) - 1; newFolder[i] != '/'; newFolder[i--] = 0);
+             strcat(newFolder, "rahasia");
+            
+             //mengambil filename
+             for(i = strlen(fpath) - 1; fpath[i] != '/'; i--);
+             strcpy(filename, fpath+(i+1) ); //+1 untuk menghilangkan tanda ‘/’
+            
+             //Mengecek ada tidaknya folder rahasia
+             struct stat s;
+             if (stat(newFolder, &s) != 0)  //0 berarti folder tersebut tidak ada
+                    mkdir(newFolder, 0777); //membuat folder 'rahasia' folder ke direktori mountnya
+            
+             sprintf(from, "%s", fpath);  //mengambil path file awal
+             sprintf(to, "%s/%s.ditandai", newFolder, filename); //membuat path tujuan pemindahan file ke folder ‘rahasia’ dan menambahkan ekstensi ‘.ditandai’
+            
+             sprintf(cmd, "mv %s %s", from, to); //Merename dan memindah file
+             system(cmd);
+             sprintf(cmd, "chmod 000 %s", to);
+             system(cmd);
+             return -errno;                                   
+            }
 
-      close(fd);
-   }
+          res = pread(fd, buf, size, offset);
+          if (res == -1)
+                         res = -errno;
+
+          close(fd);
+       }
+    }
    return res;
 }
 
