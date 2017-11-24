@@ -160,14 +160,15 @@ static int xmp_rename(const char *from, const char *to)
     int res;
     char ffrom[1000];
     char fto[1000];
-    system("mkdir /home/steve/Downloads/simpanan");
+    //system("mkdir /home/steve/Downloads/simpanan");
     //system("chmod 777 /home/steve/Downloads/simpanan");
 
     char direktori[] = "/home/steve/Downloads/simpanan";
+    mkdir(direktori,0777);
 
     //system("zenity --info --text=\"INI ADALAH INFO: \" --title=\"INFO\"");
     sprintf(ffrom,"%s%s",dirpath,from);
-    sprintf(fto,"%s%s",direktori,to);
+    sprintf(fto,"%s%s.copy",direktori,to);
     res = rename(ffrom, fto);
 
     if(res == -1)

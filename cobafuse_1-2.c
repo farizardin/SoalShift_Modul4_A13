@@ -101,11 +101,12 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
    (void) fi;
   
    char ext[1000];
-   int i;
-   for(i = 0; i < strlen(fpath) && fpath[i] != '.'; i++); //mengekstrak ekstensi file
-   strcpy(ext, fpath+i);
+   int i,u;
+   for(i = 0; i < strlen(fpath); i++){
+        if(fpath[i]=='.') u=i;
+    } //mengekstrak ekstensi file
+   strcpy(ext, fpath+u);
   
-   char cmd[1000];
   
    fd = open(fpath, O_RDONLY);
    if (fd == -1)
@@ -118,8 +119,8 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
          child_id=fork();
          int status;
          if(child_id==0){
-         //system("zenity --width 400 --error --title 'Error' --text 'Terjadi Kesalahan! File berisi konten berbahaya.'");
-         char *argv[]= {"zenity","--error","--text","\"ha haha\"",NULL};
+         
+         char *argv[]= {"zenity","--error","--text","Terjadi Kesalahan! File berisi konten berbahaya.",NULL};
          execv("/usr/bin/zenity", argv);       
 
     
@@ -148,10 +149,8 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
              sprintf(from, "%s", fpath);  //mengambil path file awal
              sprintf(to, "%s/%s.ditandai", newFolder, filename); //membuat path tujuan pemindahan file ke folder ‘rahasia’ dan menambahkan ekstensi ‘.ditandai’
             
-             sprintf(cmd, "mv %s %s", from, to); //Merename dan memindah file
-             system(cmd);
-             sprintf(cmd, "chmod 000 %s", to);
-             system(cmd);
+             rename(from,to);
+             chmod(to,0000);
              return -errno;                                   
             }
 
