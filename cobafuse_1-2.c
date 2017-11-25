@@ -45,7 +45,6 @@ static int xmp_chmod(const char *path, mode_t mode)
     int res;
     char fpath[1000];
     char direktori[] = "/home/steve/Downloads/file";
-    //sprintf(fpath,"%s%s", dirpath, path);
     sprintf(fpath,"%s%s", direktori, path);
     res = chmod(fpath, mode);
     if(res == -1)
